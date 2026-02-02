@@ -9,11 +9,11 @@ exports.verifyPassword = verifyPassword;
 const mongoose_1 = __importDefault(require("mongoose"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const userSchema = new mongoose_1.default.Schema({
-    email: { type: String, trim: true, lowercase: true, sparse: true },
-    phone: { type: String, trim: true, sparse: true },
+    email: { type: String, trim: true, lowercase: true },
+    phone: { type: String, trim: true },
     name: { type: String, trim: true, default: '' },
     passwordHash: { type: String },
-    role: { type: String, enum: ['passenger', 'driver'], default: 'passenger' },
+    role: { type: String, enum: ['passenger', 'driver', 'admin'], default: 'passenger' },
 }, { timestamps: true });
 userSchema.index({ email: 1 }, { unique: true, sparse: true });
 userSchema.index({ phone: 1 }, { unique: true, sparse: true });

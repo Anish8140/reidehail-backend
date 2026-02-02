@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DriverModel = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const driverSchema = new mongoose_1.default.Schema({
-    userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
+    userId: { type: mongoose_1.default.Schema.Types.ObjectId, ref: 'User', required: true },
     isOnline: { type: Boolean, default: false },
     lastLocation: {
         latitude: Number,
@@ -18,6 +18,6 @@ const driverSchema = new mongoose_1.default.Schema({
     phone: { type: String, default: '' },
     rating: { type: Number, default: 5 },
 }, { timestamps: true });
-driverSchema.index({ userId: 1 });
+driverSchema.index({ userId: 1 }, { unique: true });
 driverSchema.index({ isOnline: 1 });
 exports.DriverModel = mongoose_1.default.model('Driver', driverSchema);

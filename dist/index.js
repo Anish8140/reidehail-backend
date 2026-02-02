@@ -13,7 +13,7 @@ const history_1 = require("./routes/history");
 const driver_1 = require("./routes/driver");
 const realtime_1 = require("./realtime");
 const app = (0, express_1.default)();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/ridehailing';
 app.use((0, cors_1.default)({ origin: true, credentials: true }));
 app.use(express_1.default.json());
@@ -25,8 +25,9 @@ app.get('/health', (_req, res) => res.json({ ok: true }));
 const httpServer = http_1.default.createServer(app);
 (0, realtime_1.initRealtime)(httpServer);
 mongoose_1.default.connect(MONGODB_URI).then(() => {
-    httpServer.listen(PORT, () => {
+    httpServer.listen(PORT, '0.0.0.0', () => {
         console.log(`Server running at http://localhost:${PORT}`);
+        console.log(`Accepting connections on all interfaces (use your machine IP for devices)`);
         console.log(`WebSocket (Socket.io) enabled for real-time updates`);
     });
 }).catch((err) => {

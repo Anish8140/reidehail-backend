@@ -31,6 +31,7 @@ function toUserResponse(user) {
         email: user.email ?? undefined,
         phone: user.phone ?? undefined,
         name: user.name ?? undefined,
+        role: user.role ?? 'passenger',
         createdAt: user.createdAt,
     };
 }
@@ -70,7 +71,7 @@ exports.authRouter.post('/verify-otp', otpLimiter, async (req, res) => {
                 role: 'passenger',
             })).toObject();
         }
-        const token = (0, auth_1.createToken)(String(user._id));
+        const token = (0, auth_1.createToken)(String(user._id), user.role ?? 'passenger');
         res.json({
             user: toUserResponse(user),
             token,
@@ -99,7 +100,7 @@ exports.authRouter.post('/login', async (req, res) => {
         if (!valid) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
-        const token = (0, auth_1.createToken)(String(user._id));
+        const token = (0, auth_1.createToken)(String(user._id), user.role ?? 'passenger');
         res.json({
             user: toUserResponse(user),
             token,
@@ -112,7 +113,8 @@ exports.authRouter.post('/login', async (req, res) => {
 });
 exports.authRouter.post('/signup', async (req, res) => {
     try {
-        const { email, password, role } = req.body || {};
+        const { email, password, name, role = 'passenger' } = req.body || {};
+        console.log('signup', email, password, name, role);
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password required' });
         }
@@ -121,16 +123,19 @@ exports.authRouter.post('/signup', async (req, res) => {
         if (existing) {
             return res.status(400).json({ message: 'An account with this email already exists' });
         }
+        const allowedRoles = ['passenger', 'driver', 'admin'];
+        const roleNorm = allowedRoles.includes(String(role)) ? role : 'passenger';
         const passwordHash = await (0, User_1.hashPassword)(String(password));
         const user = await User_1.UserModel.create({
             email: emailNorm,
             passwordHash,
-            role: role === 'driver' ? 'driver' : 'passenger',
+            name: name ? String(name).trim() : '',
+            role: roleNorm,
         });
         if (user.role === 'driver') {
             await Driver_1.DriverModel.findOneAndUpdate({ userId: user._id }, { $setOnInsert: { userId: user._id, isOnline: false } }, { upsert: true });
         }
-        const token = (0, auth_1.createToken)(String(user._id));
+        const token = (0, auth_1.createToken)(String(user._id), user.role ?? 'passenger');
         res.status(201).json({
             user: toUserResponse(user),
             token,
@@ -146,7 +151,7 @@ exports.authRouter.post('/logout', (_req, res) => {
 });
 exports.authRouter.get('/session', auth_1.authMiddleware, async (req, res) => {
     try {
-        const user = await User_1.UserModel.findById(req.userId).select('email phone name createdAt').lean();
+        const user = await User_1.UserModel.findById(req.userId).select('email phone name role createdAt').lean();
         if (!user)
             return res.status(401).json({ message: 'Unauthorized' });
         res.json({

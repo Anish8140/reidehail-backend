@@ -26,7 +26,7 @@ const httpServer = http.createServer(app);
 initRealtime(httpServer);
 
 mongoose.connect(MONGODB_URI).then(() => {
-  httpServer.listen(PORT, '0.0.0.0', () => {
+  httpServer.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
     console.log(`Accepting connections on all interfaces (use your machine IP for devices)`);
     console.log(`WebSocket (Socket.io) enabled for real-time updates`);
