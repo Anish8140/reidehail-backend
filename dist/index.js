@@ -24,8 +24,9 @@ app.use('/driver', driver_1.driverRouter);
 app.get('/health', (_req, res) => res.json({ ok: true }));
 const httpServer = http_1.default.createServer(app);
 (0, realtime_1.initRealtime)(httpServer);
+console.log("MONGODB_URI", MONGODB_URI);
 mongoose_1.default.connect(MONGODB_URI).then(() => {
-    httpServer.listen(PORT, '0.0.0.0', () => {
+    httpServer.listen(PORT, () => {
         console.log(`Server running at http://localhost:${PORT}`);
         console.log(`Accepting connections on all interfaces (use your machine IP for devices)`);
         console.log(`WebSocket (Socket.io) enabled for real-time updates`);
